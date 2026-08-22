@@ -29,6 +29,8 @@ class KeyboardService : InputMethodService() {
                 gifPanel?.handleSearchKey(key)
             } else if (key == MKKeyboardView.KeyAction.Gif) {
                 showGifPanel()
+            } else if (key == MKKeyboardView.KeyAction.Emoji) {
+                showEmojiPanel()
             } else {
                 handleKey(key)
             }
@@ -57,6 +59,7 @@ class KeyboardService : InputMethodService() {
             MKKeyboardView.KeyAction.Enter -> connection.commitText("\n", 1)
             MKKeyboardView.KeyAction.Space -> connection.commitText(" ", 1)
             MKKeyboardView.KeyAction.Gif -> Unit
+            MKKeyboardView.KeyAction.Emoji -> Unit
             MKKeyboardView.KeyAction.NoOp -> Unit
             is MKKeyboardView.KeyAction.Text -> {
                 val text = if (shifted) key.value.uppercase() else key.value
@@ -114,6 +117,27 @@ class KeyboardService : InputMethodService() {
                 }
                 closeGifPanel()
             }
+        }
+    }
+
+    private fun showEmojiPanel() {
+        val root = rootView ?: return
+        val panel = EmojiPanelView(this, { emoji ->
+            currentInputConnection?.commitText(emoji, 1)
+            closeEmojiPanel()
+        }, ::closeEmojiPanel)
+        root.removeAllViews()
+        val container = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        container.addView(panel, LinearLayout.LayoutParams(-1, dp(270)))
+        container.addView(keyboardView!!, LinearLayout.LayoutParams(-1, 0, 1f))
+        root.addView(container, FrameLayout.LayoutParams(-1, -1).apply { gravity = Gravity.TOP })
+    }
+
+    private fun closeEmojiPanel() {
+        rootView?.let { root ->
+            root.removeAllViews()
+            root.addView(keyboardView!!, FrameLayout.LayoutParams(-1, -1))
+            keyboardView?.visibility = View.VISIBLE
         }
     }
 

@@ -22,6 +22,7 @@ class MKKeyboardView(
         data object Space : KeyAction()
         data object Enter : KeyAction()
         data object Gif : KeyAction()
+        data object Emoji : KeyAction()
         data object NoOp : KeyAction()
     }
 
@@ -46,7 +47,7 @@ class MKKeyboardView(
     private val rows = listOf(
         listOf(
             KeySpec("GIF", KeyAction.Gif),
-            KeySpec("☺", KeyAction.NoOp),
+            KeySpec("😊", KeyAction.Emoji),
             KeySpec("▣", KeyAction.NoOp),
             KeySpec("⌘", KeyAction.NoOp),
             KeySpec("aあ", KeyAction.NoOp),
@@ -57,15 +58,15 @@ class MKKeyboardView(
         "qwertyuiop".map { letter(it) },
         "asdfghjkl".map { letter(it) },
         listOf(
-            KeySpec("⇧", KeyAction.Shift, 1.35f),
+            KeySpec("⇧", KeyAction.Shift),
             *"zxcvbnm".map { letter(it) }.toTypedArray(),
-            KeySpec("⌫", KeyAction.Delete, 1.35f)
+            KeySpec("⌫", KeyAction.Delete)
         ),
         listOf(
-            KeySpec(",", KeyAction.Text(","), 1.15f),
-            KeySpec("space", KeyAction.Space, 4.6f),
-            KeySpec(".", KeyAction.Text("."), 1.15f),
-            KeySpec("↵", KeyAction.Enter, 1.35f)
+            KeySpec(",", KeyAction.Text(",")),
+            KeySpec("space", KeyAction.Space),
+            KeySpec(".", KeyAction.Text(".")),
+            KeySpec("↵", KeyAction.Enter)
         )
     )
 
@@ -80,7 +81,7 @@ class MKKeyboardView(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val desiredHeight = dp(388)
+        val desiredHeight = dp(348)
         val measuredHeight = resolveSize(desiredHeight, heightMeasureSpec)
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), measuredHeight)
     }
@@ -101,10 +102,10 @@ class MKKeyboardView(
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), background)
 
         keyBounds.clear()
-        val horizontalPadding = dp(9).toFloat()
-        val verticalPadding = dp(10).toFloat()
-        val rowGap = dp(7).toFloat()
-        val keyGap = dp(5).toFloat()
+        val horizontalPadding = dp(5).toFloat()
+        val verticalPadding = dp(7).toFloat()
+        val rowGap = dp(5).toFloat()
+        val keyGap = dp(4).toFloat()
         val rowHeight = (height - verticalPadding * 2 - rowGap * (rows.size - 1)) / rows.size
 
         rows.forEachIndexed { rowIndex, row ->
@@ -136,7 +137,8 @@ class MKKeyboardView(
         labelPaint.textSize = when {
             spec.label == "space" -> dp(13).toFloat()
             spec.label == "•••" -> dp(16).toFloat()
-            else -> dp(19).toFloat()
+            spec.label == "😊" -> dp(17).toFloat()
+            else -> dp(18).toFloat()
         }
         val label = if (shifted && spec.action is KeyAction.Text && spec.label.length == 1) {
             spec.label.uppercase()
@@ -178,7 +180,7 @@ class MKKeyboardView(
         return true
     }
 
-    private fun letter(value: Char) = KeySpec(value.uppercase(), KeyAction.Text(value.toString()))
+    private fun letter(value: Char) = KeySpec(value.toString(), KeyAction.Text(value.toString()))
 
     private fun dp(value: Int): Int = max(1, (value * density).toInt())
 }
