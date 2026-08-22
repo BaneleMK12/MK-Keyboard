@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.core.content.FileProvider
 import java.io.File
 import java.net.HttpURLConnection
@@ -19,11 +20,18 @@ import kotlin.concurrent.thread
 class KeyboardService : InputMethodService() {
     private var keyboardView: MKKeyboardView? = null
     private var rootView: FrameLayout? = null
+    private var gifPanel: GifPanelView? = null
     private var shifted = false
 
     override fun onCreateInputView(): View {
         keyboardView = MKKeyboardView(this) { key ->
-            if (key == MKKeyboardView.KeyAction.Gif) showGifPanel() else handleKey(key)
+            if (gifPanel?.isSearchActive == true) {
+                gifPanel?.handleSearchKey(key)
+            } else if (key == MKKeyboardView.KeyAction.Gif) {
+                showGifPanel()
+            } else {
+                handleKey(key)
+            }
         }
         return FrameLayout(this).also { root ->
             rootView = root
@@ -49,6 +57,7 @@ class KeyboardService : InputMethodService() {
             MKKeyboardView.KeyAction.Enter -> connection.commitText("\n", 1)
             MKKeyboardView.KeyAction.Space -> connection.commitText(" ", 1)
             MKKeyboardView.KeyAction.Gif -> Unit
+            MKKeyboardView.KeyAction.NoOp -> Unit
             is MKKeyboardView.KeyAction.Text -> {
                 val text = if (shifted) key.value.uppercase() else key.value
                 connection.commitText(text, 1)
@@ -62,16 +71,20 @@ class KeyboardService : InputMethodService() {
 
     private fun showGifPanel() {
         val root = rootView ?: return
-        keyboardView?.visibility = View.GONE
         val panel = GifPanelView(this, ::sendGif, {
+            gifPanel = null
             root.removeAllViews()
             root.addView(keyboardView!!, FrameLayout.LayoutParams(-1, -1))
             keyboardView?.visibility = View.VISIBLE
-        })
+        }, {})
+        gifPanel = panel
         root.removeAllViews()
-        root.addView(panel, FrameLayout.LayoutParams(-1, -1).apply {
-            gravity = Gravity.TOP
-        })
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+        container.addView(panel, LinearLayout.LayoutParams(-1, dp(270)))
+        container.addView(keyboardView!!, LinearLayout.LayoutParams(-1, 0, 1f))
+        root.addView(container, FrameLayout.LayoutParams(-1, -1).apply { gravity = Gravity.TOP })
     }
 
     private fun sendGif(url: String) {
@@ -105,6 +118,7 @@ class KeyboardService : InputMethodService() {
     }
 
     private fun closeGifPanel() {
+        gifPanel = null
         rootView?.let { root ->
             root.removeAllViews()
             root.addView(keyboardView!!, FrameLayout.LayoutParams(-1, -1))
@@ -125,4 +139,6 @@ class KeyboardService : InputMethodService() {
             connection.disconnect()
         }
     }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }

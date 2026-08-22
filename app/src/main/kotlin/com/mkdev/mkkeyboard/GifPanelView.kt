@@ -24,8 +24,11 @@ import kotlin.concurrent.thread
 class GifPanelView(
     context: Context,
     private val onGifSelected: (String) -> Unit,
-    private val onClose: () -> Unit
+    private val onClose: () -> Unit,
+    private val onSearchKey: (MKKeyboardView.KeyAction) -> Unit
 ) : LinearLayout(context) {
+    var isSearchActive = false
+        private set
     private val grid = LinearLayout(context).apply {
         orientation = VERTICAL
         setPadding(dp(8), 0, dp(8), dp(12))
@@ -33,6 +36,7 @@ class GifPanelView(
     private val queryInput = EditText(context).apply {
         hint = "Search GIPHY"
         setSingleLine(true)
+        setShowSoftInputOnFocus(false)
         setTextColor(Color.WHITE)
         setHintTextColor(Color.rgb(150, 190, 220))
         setPadding(dp(14), 0, dp(10), 0)
@@ -42,6 +46,7 @@ class GifPanelView(
 
     init {
         orientation = VERTICAL
+        isFocusableInTouchMode = true
         setBackgroundColor(Color.rgb(7, 21, 47))
 
         val header = LinearLayout(context).apply {
@@ -59,6 +64,13 @@ class GifPanelView(
         header.addView(queryInput, LayoutParams(0, dp(42), 1f).apply {
             setMargins(dp(6), 0, dp(6), 0)
         })
+        queryInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) isSearchActive = true
+        }
+        queryInput.setOnClickListener {
+            isSearchActive = true
+            queryInput.requestFocus()
+        }
         val search = TextView(context).apply {
             text = "Search"
             gravity = Gravity.CENTER
@@ -87,7 +99,23 @@ class GifPanelView(
             load(queryInput.text.toString().trim())
             true
         }
+        requestFocus()
         load("")
+    }
+
+    fun handleSearchKey(key: MKKeyboardView.KeyAction) {
+        if (!isSearchActive) return
+        when (key) {
+            is MKKeyboardView.KeyAction.Text -> queryInput.append(key.value)
+            MKKeyboardView.KeyAction.Space -> queryInput.append(" ")
+            MKKeyboardView.KeyAction.Delete -> {
+                val text = queryInput.text
+                if (text.isNotEmpty()) text.delete(text.length - 1, text.length)
+            }
+            MKKeyboardView.KeyAction.Enter -> load(queryInput.text.toString().trim())
+            else -> Unit
+        }
+        onSearchKey(key)
     }
 
     private fun load(query: String) {

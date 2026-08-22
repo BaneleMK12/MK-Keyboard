@@ -22,6 +22,7 @@ class MKKeyboardView(
         data object Space : KeyAction()
         data object Enter : KeyAction()
         data object Gif : KeyAction()
+        data object NoOp : KeyAction()
     }
 
     private data class KeySpec(
@@ -43,7 +44,16 @@ class MKKeyboardView(
     private var pressedIndex = -1
 
     private val rows = listOf(
-        listOf(KeySpec("GIF", KeyAction.Gif, 1f)),
+        listOf(
+            KeySpec("GIF", KeyAction.Gif),
+            KeySpec("☺", KeyAction.NoOp),
+            KeySpec("▣", KeyAction.NoOp),
+            KeySpec("⌘", KeyAction.NoOp),
+            KeySpec("aあ", KeyAction.NoOp),
+            KeySpec("●", KeyAction.NoOp),
+            KeySpec("•••", KeyAction.NoOp)
+        ),
+        "1234567890".map { KeySpec(it.toString(), KeyAction.Text(it.toString())) },
         "qwertyuiop".map { letter(it) },
         "asdfghjkl".map { letter(it) },
         listOf(
@@ -70,7 +80,7 @@ class MKKeyboardView(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val desiredHeight = dp(292)
+        val desiredHeight = dp(388)
         val measuredHeight = resolveSize(desiredHeight, heightMeasureSpec)
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), measuredHeight)
     }
@@ -83,8 +93,8 @@ class MKKeyboardView(
                 0f,
                 width.toFloat(),
                 height.toFloat(),
-                Color.rgb(7, 21, 47),
-                Color.rgb(11, 43, 82),
+                Color.rgb(232, 236, 241),
+                Color.rgb(214, 222, 232),
                 Shader.TileMode.CLAMP
             )
         }
@@ -116,14 +126,18 @@ class MKKeyboardView(
         val isSpecial = spec.action !is KeyAction.Text
         keyPaint.shader = null
         keyPaint.color = when {
-            index == pressedIndex -> Color.rgb(76, 183, 231)
-            isSpecial -> Color.rgb(28, 111, 180)
-            else -> Color.rgb(20, 74, 132)
+            index == pressedIndex -> Color.rgb(174, 207, 235)
+            isSpecial -> Color.rgb(207, 216, 226)
+            else -> Color.WHITE
         }
         canvas.drawRoundRect(rect, dp(10).toFloat(), dp(10).toFloat(), keyPaint)
 
-        labelPaint.color = if (isSpecial) Color.rgb(224, 250, 255) else Color.WHITE
-        labelPaint.textSize = if (spec.label == "space") dp(13).toFloat() else dp(19).toFloat()
+        labelPaint.color = Color.rgb(75, 82, 91)
+        labelPaint.textSize = when {
+            spec.label == "space" -> dp(13).toFloat()
+            spec.label == "•••" -> dp(16).toFloat()
+            else -> dp(19).toFloat()
+        }
         val label = if (shifted && spec.action is KeyAction.Text && spec.label.length == 1) {
             spec.label.uppercase()
         } else {
