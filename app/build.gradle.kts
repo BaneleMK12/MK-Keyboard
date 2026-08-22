@@ -6,6 +6,9 @@ plugins {
   android {
       compileSdk = 36
       namespace = "com.mkdev.mkkeyboard"
+      buildFeatures {
+          buildConfig = true
+      }
 
       defaultConfig {
           applicationId = "com.mkdev.mkkeyboard"
@@ -13,6 +16,11 @@ plugins {
           targetSdk = 36
           versionCode = 1
           versionName = "1.0"
+        buildConfigField(
+            "String",
+            "GIPHY_API_KEY",
+            "\"${System.getenv("GIPHY_API_KEY") ?: "9I9AcTIdNuIIVOBptqTEkeWkNU2gII8D"}\""
+        )
       }
 
       signingConfigs {

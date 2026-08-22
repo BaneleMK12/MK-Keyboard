@@ -16,8 +16,11 @@ being a visual demo.
 3. Turn on MK Keyboard in Android's keyboard settings.
 4. Tap **Choose MK Keyboard** and select MK Keyboard.
 
-The keyboard does not require network access and only sends typed characters to
-the active text field.
+The keyboard includes a GIF button above the letter rows. It loads trending GIFs
+from GIPHY, supports searching, and sends a selected GIF directly to apps that
+support Android rich-content input. A GIPHY URL is inserted as a fallback for
+older or unsupported text fields. The GIF picker displays the required
+Powered by GIPHY attribution.
 
 ## Building
 

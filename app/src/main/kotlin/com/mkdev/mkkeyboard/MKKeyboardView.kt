@@ -21,6 +21,7 @@ class MKKeyboardView(
         data object Delete : KeyAction()
         data object Space : KeyAction()
         data object Enter : KeyAction()
+        data object Gif : KeyAction()
     }
 
     private data class KeySpec(
@@ -42,6 +43,7 @@ class MKKeyboardView(
     private var pressedIndex = -1
 
     private val rows = listOf(
+        listOf(KeySpec("GIF", KeyAction.Gif, 1f)),
         "qwertyuiop".map { letter(it) },
         "asdfghjkl".map { letter(it) },
         listOf(
@@ -90,7 +92,7 @@ class MKKeyboardView(
 
         keyBounds.clear()
         val horizontalPadding = dp(9).toFloat()
-        val verticalPadding = dp(12).toFloat()
+        val verticalPadding = dp(10).toFloat()
         val rowGap = dp(7).toFloat()
         val keyGap = dp(5).toFloat()
         val rowHeight = (height - verticalPadding * 2 - rowGap * (rows.size - 1)) / rows.size
