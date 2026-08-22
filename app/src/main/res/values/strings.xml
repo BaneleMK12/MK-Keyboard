@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MK Keyboard</string>
+    <string name="keyboard_service_name">MK Keyboard</string>
+    <string name="subtype_english">English (US)</string>
+    <string name="setup_title">MK Keyboard</string>
+    <string name="setup_subtitle">A focused blue keyboard built for quick, comfortable typing.</string>
+    <string name="keyboard_ready">Your keyboard is ready to set up.</string>
+    <string name="keyboard_enabled">MK Keyboard is enabled.</string>
+    <string name="enable_keyboard">Enable MK Keyboard</string>
+    <string name="choose_keyboard">Choose MK Keyboard</string>
+    <string name="setup_hint">Open Settings to enable MK Keyboard, then choose it from your keyboard picker.</string>
+</resources>
