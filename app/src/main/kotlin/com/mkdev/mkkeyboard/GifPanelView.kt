@@ -32,7 +32,7 @@ class GifPanelView(
     }
     private val queryInput = EditText(context).apply {
         hint = "Search GIPHY"
-        singleLine = true
+        setSingleLine(true)
         setTextColor(Color.WHITE)
         setHintTextColor(Color.rgb(150, 190, 220))
         setPadding(dp(14), 0, dp(10), 0)
