@@ -24,13 +24,13 @@ class KeyboardService : InputMethodService() {
     private fun handleKey(key: MKKeyboardView.KeyAction) {
         val connection = currentInputConnection ?: return
         when (key) {
-            MKKeyboardView.KeyAction.SHIFT -> {
+            MKKeyboardView.KeyAction.Shift -> {
                 shifted = !shifted
                 keyboardView?.setShifted(shifted)
             }
-            MKKeyboardView.KeyAction.DELETE -> connection.deleteSurroundingText(1, 0)
-            MKKeyboardView.KeyAction.ENTER -> connection.commitText("\n", 1)
-            MKKeyboardView.KeyAction.SPACE -> connection.commitText(" ", 1)
+            MKKeyboardView.KeyAction.Delete -> connection.deleteSurroundingText(1, 0)
+            MKKeyboardView.KeyAction.Enter -> connection.commitText("\n", 1)
+            MKKeyboardView.KeyAction.Space -> connection.commitText(" ", 1)
             is MKKeyboardView.KeyAction.Text -> {
                 val text = if (shifted) key.value.uppercase() else key.value
                 connection.commitText(text, 1)
