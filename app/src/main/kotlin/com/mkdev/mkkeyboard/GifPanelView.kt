@@ -25,7 +25,8 @@ class GifPanelView(
     context: Context,
     private val onGifSelected: (String) -> Unit,
     private val onClose: () -> Unit,
-    private val onSearchKey: (MKKeyboardView.KeyAction) -> Unit
+    private val onSearchKey: (MKKeyboardView.KeyAction) -> Unit,
+    private val onSearchActivated: () -> Unit
 ) : LinearLayout(context) {
     var isSearchActive = false
         private set
@@ -70,6 +71,7 @@ class GifPanelView(
         queryInput.setOnClickListener {
             isSearchActive = true
             queryInput.requestFocus()
+            onSearchActivated()
         }
         val search = TextView(context).apply {
             text = "Search"

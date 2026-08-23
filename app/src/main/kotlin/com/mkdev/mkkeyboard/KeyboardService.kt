@@ -6,8 +6,10 @@ import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -22,6 +24,8 @@ class KeyboardService : InputMethodService() {
     private var rootView: FrameLayout? = null
     private var gifPanel: GifPanelView? = null
     private var shifted = false
+    private var capsLocked = false
+    private var lastShiftTapAt = 0L
 
     override fun onCreateInputView(): View {
         keyboardView = MKKeyboardView(this) { key ->
@@ -45,15 +49,29 @@ class KeyboardService : InputMethodService() {
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         shifted = false
+        capsLocked = false
+        lastShiftTapAt = 0L
         keyboardView?.setShifted(false)
+        keyboardView?.setCapsLocked(false)
     }
 
     private fun handleKey(key: MKKeyboardView.KeyAction) {
         val connection = currentInputConnection ?: return
         when (key) {
             MKKeyboardView.KeyAction.Shift -> {
-                shifted = !shifted
+                val now = SystemClock.uptimeMillis()
+                if (now - lastShiftTapAt < 350) {
+                    capsLocked = !capsLocked
+                    shifted = capsLocked
+                } else if (!capsLocked) {
+                    shifted = !shifted
+                } else {
+                    capsLocked = false
+                    shifted = false
+                }
+                lastShiftTapAt = now
                 keyboardView?.setShifted(shifted)
+                keyboardView?.setCapsLocked(capsLocked)
             }
             MKKeyboardView.KeyAction.Delete -> connection.deleteSurroundingText(1, 0)
             MKKeyboardView.KeyAction.Enter -> connection.commitText("\n", 1)
@@ -62,9 +80,9 @@ class KeyboardService : InputMethodService() {
             MKKeyboardView.KeyAction.Emoji -> Unit
             MKKeyboardView.KeyAction.NoOp -> Unit
             is MKKeyboardView.KeyAction.Text -> {
-                val text = if (shifted) key.value.uppercase() else key.value
+                val text = if (shifted || capsLocked) key.value.uppercase() else key.value
                 connection.commitText(text, 1)
-                if (shifted) {
+                if (shifted && !capsLocked) {
                     shifted = false
                     keyboardView?.setShifted(false)
                 }
@@ -74,20 +92,35 @@ class KeyboardService : InputMethodService() {
 
     private fun showGifPanel() {
         val root = rootView ?: return
-        val panel = GifPanelView(this, ::sendGif, {
+        lateinit var panel: GifPanelView
+        panel = GifPanelView(this, ::sendGif, {
             gifPanel = null
             root.removeAllViews()
             root.addView(keyboardView!!, FrameLayout.LayoutParams(-1, -1))
             keyboardView?.visibility = View.VISIBLE
-        }, {})
+        }, {}, {
+            showKeyboardForGifSearch(panel)
+        })
         gifPanel = panel
         root.removeAllViews()
+        panel.alpha = 0f
+        panel.translationY = dp(12).toFloat()
+        panel.animate().alpha(1f).translationY(0f).setDuration(180).start()
+        root.addView(panel, FrameLayout.LayoutParams(-1, -1).apply { gravity = Gravity.TOP })
+    }
+
+    private fun showKeyboardForGifSearch(panel: GifPanelView) {
+        val root = rootView ?: return
+        if (panel.parent != null) (panel.parent as? ViewGroup)?.removeView(panel)
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
         container.addView(panel, LinearLayout.LayoutParams(-1, dp(270)))
         container.addView(keyboardView!!, LinearLayout.LayoutParams(-1, 0, 1f))
+        keyboardView?.alpha = 0f
+        keyboardView?.translationY = dp(12).toFloat()
         root.addView(container, FrameLayout.LayoutParams(-1, -1).apply { gravity = Gravity.TOP })
+        keyboardView?.animate()?.alpha(1f)?.translationY(0f)?.setDuration(180)?.start()
     }
 
     private fun sendGif(url: String) {

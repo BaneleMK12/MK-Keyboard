@@ -42,6 +42,7 @@ class MKKeyboardView(
     }
     private val keyBounds = mutableListOf<KeyBounds>()
     private var shifted = false
+    private var capsLocked = false
     private var pressedIndex = -1
 
     private val rows = listOf(
@@ -77,6 +78,11 @@ class MKKeyboardView(
 
     fun setShifted(value: Boolean) {
         shifted = value
+        invalidate()
+    }
+
+    fun setCapsLocked(value: Boolean) {
+        capsLocked = value
         invalidate()
     }
 
@@ -128,6 +134,7 @@ class MKKeyboardView(
         keyPaint.shader = null
         keyPaint.color = when {
             index == pressedIndex -> Color.rgb(174, 207, 235)
+            spec.action is KeyAction.Shift && capsLocked -> Color.rgb(170, 205, 238)
             isSpecial -> Color.rgb(207, 216, 226)
             else -> Color.WHITE
         }
@@ -153,6 +160,7 @@ class MKKeyboardView(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 pressedIndex = keyBounds.indexOfFirst { it.rect.contains(event.x, event.y) }
+                animate().scaleX(0.995f).scaleY(0.995f).setDuration(70).start()
                 invalidate()
                 return true
             }
@@ -162,12 +170,14 @@ class MKKeyboardView(
                     onKeyAction(keyBounds[releasedIndex].spec.action)
                 }
                 pressedIndex = -1
+                animate().scaleX(1f).scaleY(1f).setDuration(90).start()
                 invalidate()
                 performClick()
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
                 pressedIndex = -1
+                animate().scaleX(1f).scaleY(1f).setDuration(90).start()
                 invalidate()
                 return true
             }
