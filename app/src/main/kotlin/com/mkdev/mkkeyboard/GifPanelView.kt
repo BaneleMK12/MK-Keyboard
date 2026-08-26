@@ -38,17 +38,17 @@ class GifPanelView(
         hint = "Search GIPHY"
         setSingleLine(true)
         setShowSoftInputOnFocus(false)
-        setTextColor(Color.WHITE)
-        setHintTextColor(Color.rgb(150, 190, 220))
+        setTextColor(Color.rgb(48, 57, 69))
+        setHintTextColor(Color.rgb(126, 139, 154))
         setPadding(dp(14), 0, dp(10), 0)
-        background = rounded(Color.rgb(19, 65, 111), dp(18).toFloat())
+        background = rounded(Color.WHITE, dp(18).toFloat())
     }
     private val loading = ProgressBar(context).apply { visibility = GONE }
 
     init {
         orientation = VERTICAL
         isFocusableInTouchMode = true
-        setBackgroundColor(Color.rgb(7, 21, 47))
+        setBackgroundColor(Color.rgb(232, 236, 241))
 
         val header = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
@@ -57,7 +57,7 @@ class GifPanelView(
         val close = ImageButton(context).apply {
             contentDescription = "Close GIF picker"
             setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-            setColorFilter(Color.WHITE)
+            setColorFilter(Color.rgb(55, 65, 78))
             setBackgroundColor(Color.TRANSPARENT)
             setOnClickListener { onClose() }
         }
@@ -76,9 +76,9 @@ class GifPanelView(
         val search = TextView(context).apply {
             text = "Search"
             gravity = Gravity.CENTER
-            setTextColor(Color.rgb(7, 21, 47))
+            setTextColor(Color.WHITE)
             setTypeface(null, android.graphics.Typeface.BOLD)
-            background = rounded(Color.rgb(102, 228, 255), dp(18).toFloat())
+            background = rounded(Color.rgb(42, 122, 225), dp(18).toFloat())
             setOnClickListener { load(queryInput.text.toString().trim()) }
         }
         header.addView(search, LayoutParams(dp(78), dp(42)))
@@ -87,7 +87,7 @@ class GifPanelView(
         val attribution = TextView(context).apply {
             text = "GIFs from GIPHY  •  Powered by GIPHY"
             textSize = 11f
-            setTextColor(Color.rgb(150, 190, 220))
+            setTextColor(Color.rgb(104, 117, 132))
             setPadding(dp(16), dp(2), dp(16), dp(8))
         }
         addView(attribution)
@@ -140,7 +140,7 @@ class GifPanelView(
         if (urls.isEmpty()) {
             grid.addView(TextView(context).apply {
                 text = "No GIFs found. Try another search."
-                setTextColor(Color.rgb(180, 205, 232))
+                setTextColor(Color.rgb(104, 117, 132))
                 gravity = Gravity.CENTER
                 setPadding(0, dp(40), 0, dp(40))
             })
@@ -155,7 +155,7 @@ class GifPanelView(
                 val image = ImageView(context).apply {
                     scaleType = ImageView.ScaleType.CENTER_CROP
                     contentDescription = "Send GIF"
-                    background = rounded(Color.rgb(19, 65, 111), dp(8).toFloat())
+                    background = rounded(Color.rgb(207, 216, 226), dp(8).toFloat())
                     setOnClickListener { onGifSelected(gifUrl) }
                 }
                 row.addView(image, LayoutParams(0, dp(94), 1f).apply {

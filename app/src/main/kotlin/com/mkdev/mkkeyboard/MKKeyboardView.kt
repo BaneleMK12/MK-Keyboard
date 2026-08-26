@@ -48,7 +48,6 @@ class MKKeyboardView(
     private val rows = listOf(
         listOf(
             KeySpec("GIF", KeyAction.Gif),
-            KeySpec("😊", KeyAction.Emoji),
             KeySpec("▣", KeyAction.NoOp),
             KeySpec("⌘", KeyAction.NoOp),
             KeySpec("aあ", KeyAction.NoOp),
@@ -64,6 +63,7 @@ class MKKeyboardView(
             KeySpec("⌫", KeyAction.Delete)
         ),
         listOf(
+            KeySpec("☺", KeyAction.Emoji),
             KeySpec(",", KeyAction.Text(",")),
             KeySpec("space", KeyAction.Space),
             KeySpec(".", KeyAction.Text(".")),
@@ -132,19 +132,27 @@ class MKKeyboardView(
     private fun drawKey(canvas: Canvas, spec: KeySpec, rect: RectF, index: Int) {
         val isSpecial = spec.action !is KeyAction.Text
         keyPaint.shader = null
-        keyPaint.color = when {
+        val keyColor = when {
             index == pressedIndex -> Color.rgb(174, 207, 235)
             spec.action is KeyAction.Shift && capsLocked -> Color.rgb(170, 205, 238)
             isSpecial -> Color.rgb(207, 216, 226)
             else -> Color.WHITE
         }
+        keyPaint.color = Color.argb(32, 46, 61, 80)
+        canvas.drawRoundRect(
+            RectF(rect.left, rect.top + dp(2), rect.right, rect.bottom + dp(2)),
+            dp(10).toFloat(),
+            dp(10).toFloat(),
+            keyPaint
+        )
+        keyPaint.color = keyColor
         canvas.drawRoundRect(rect, dp(10).toFloat(), dp(10).toFloat(), keyPaint)
 
         labelPaint.color = Color.rgb(75, 82, 91)
         labelPaint.textSize = when {
             spec.label == "space" -> dp(13).toFloat()
             spec.label == "•••" -> dp(16).toFloat()
-            spec.label == "😊" -> dp(17).toFloat()
+            spec.label == "☺" -> dp(20).toFloat()
             else -> dp(18).toFloat()
         }
         val label = if (shifted && spec.action is KeyAction.Text && spec.label.length == 1) {
